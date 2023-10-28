@@ -24,7 +24,7 @@ physicsVals OscilatorSimulation(float A, float K, float m, char *surfaceType);
 void draw();
 
 
-state simState = (state){A: 300, K: 10, m: 1, t: 0, paused: false, surfaceType: "V"};
+state simState = (state){A: 300, K: 10, m: 3, t: 0, paused: false, surfaceType: "V"}; //A edw = A(m) * 100, gia na fenetai
 
 int main(void)
 {   // initialization
@@ -33,7 +33,6 @@ int main(void)
     bool paused = false;
 
     //init
-    printf("A: %f m \nK: %f N/m \nm: %f kg \nt: %f s \nPaused: %i", simState.A, simState.K, simState.m, simState.t, simState.paused);
 
     while (!WindowShouldClose())    // Detect window close button or ESC key
     {
@@ -42,6 +41,7 @@ int main(void)
             simState.t += GetFrameTime();
             draw();    
         }    
+
     }
 
     CloseWindow();        // Close window and OpenGL context
@@ -55,11 +55,13 @@ void draw(){
         DrawRing((Vector2){SCRWIDTH/2, SCRHEIGHT/2}, simState.A, simState.A + 5, 0, 360, 1, RED);
         DrawDottedLines(SCRWIDTH/2 - simState.A, SCRHEIGHT/2, SCRWIDTH/2 + simState.A, SCRHEIGHT/2, RED);
         DrawDottedLines(SCRWIDTH/2, SCRHEIGHT/2 + simState.A, SCRWIDTH/2, SCRHEIGHT/2 - simState.A, BLUE);
-        DrawText("Equilibrium position", SCRWIDTH/2 + simState.A + 10, SCRHEIGHT/2, 18, RED);
+        DrawText("Equilibrium position", SCRWIDTH/2 + simState.A + 10, SCRHEIGHT/2 - 9, 18, RED);
+        DrawDottedLines(SCRWIDTH/2 - simState.A, SCRHEIGHT/2 - (simState.m * 10 / simState.K) * 100, SCRWIDTH/2 + simState.A, SCRHEIGHT/2 - (simState.m * 10 / simState.K) * 100, GREEN); //natural length pos
+        DrawText("Natural Length position", SCRWIDTH/2 + simState.A + 10, SCRHEIGHT/2 - (simState.m * 10 / simState.K) * 100 - 9, 18, GREEN);
         ClearBackground(RAYWHITE);
 
         char* staticVariables;
-        asprintf(&staticVariables, "A: %i m \nK: %i N/m \nm: %f kg \nt: %f s \nPaused: %i", simState.A, simState.K, simState.m, simState.t, simState.paused);
+        asprintf(&staticVariables, "A: %f m \nK: %f N/m \nm: %f kg \nt: %f s \nPaused: %i", simState.A/100, simState.K, simState.m, simState.t, simState.paused);
         DrawText(staticVariables, 5, 24, 18, BLACK);
         free(staticVariables);
 
@@ -75,6 +77,11 @@ void draw(){
             DrawDottedLines(SCRWIDTH/2 + simState.A * cos(sqrt(simState.K / simState.m) * simState.t), SCRHEIGHT/2 - osc.xEP, SCRWIDTH/2, SCRHEIGHT/2 - osc.xEP, BLACK);
         }
         
+        //!DEBUG
+        if(simState.t < 4){
+            printf("xEP: %f m \nxNL: %f m\nu: %f m/s \na: %f m/s^2 \nTF: %f N\nKE: %f J\nUE: %f J \nTE: %f J\n", osc.xEP, osc.xNL, osc.u, osc.a, osc.TF, osc.KE, osc.UE, osc.TE);
+        }
+
         char* variableValues;
         asprintf(&variableValues, "xEP: %f m \nxNL: %f m\nu: %f m/s \na: %f m/s^2 \nTF: %f N\nKE: %f J\nUE: %f J \nTE: %f J", osc.xEP, osc.xNL, osc.u, osc.a, osc.TF, osc.KE, osc.UE, osc.TE);
         DrawText(variableValues, 5, SCRHEIGHT - 18 * 8 * 3/2, 18, BLACK);
