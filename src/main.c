@@ -33,6 +33,7 @@ int main(void)
     bool paused = false;
 
     //init
+    printf("A: %f m \nK: %f N/m \nm: %f kg \nt: %f s \nPaused: %i", simState.A, simState.K, simState.m, simState.t, simState.paused);
 
     while (!WindowShouldClose())    // Detect window close button or ESC key
     {
@@ -57,17 +58,27 @@ void draw(){
         DrawText("Equilibrium position", SCRWIDTH/2 + simState.A + 10, SCRHEIGHT/2, 18, RED);
         ClearBackground(RAYWHITE);
 
+        char* staticVariables;
+        asprintf(&staticVariables, "A: %i m \nK: %i N/m \nm: %f kg \nt: %f s \nPaused: %i", simState.A, simState.K, simState.m, simState.t, simState.paused);
+        DrawText(staticVariables, 5, 24, 18, BLACK);
+        free(staticVariables);
+
         //dynamics
-        DrawFPS(0, 0);
+        DrawFPS(5, 0);
         physicsVals osc = OscilatorSimulation(simState.A, simState.K, simState.m, "V");
         DrawCircle(SCRWIDTH/2, SCRHEIGHT/2 - osc.xEP, 10, BLACK); //oscillator
         DrawLineEx((Vector2){SCRWIDTH/2, SCRHEIGHT/2}, (Vector2){SCRWIDTH/2 + simState.A * cos(sqrt(simState.K / simState.m) * simState.t), SCRHEIGHT/2 - osc.xEP}, 5.0, BLACK); //trig circle
-        DrawDottedLines(SCRWIDTH/2, SCRHEIGHT/2 - osc.xEP, (SCRWIDTH/2 + simState.A * cos(sqrt(simState.K / simState.m) * simState.t)), SCRHEIGHT/2 - osc.xEP, BLACK);
-
-        char* values;
-        asprintf(&values, "xEP: %f m \nxNL: %f m\nu: %f m/s \na: %f m/s^2 \nTF: %f N\nKE: %f J\nUE: %f J \nTE: %fJ ", osc.xEP, osc.xNL, osc.u, osc.a, osc.TF, osc.KE, osc.UE, osc.TE);
-        DrawText(values, 5, SCRHEIGHT - 18 * 8 * 3/2, 18, BLACK);
-        free(values);
+        if(cos(sqrt(simState.K / simState.m) * simState.t)>0){
+            DrawDottedLines(SCRWIDTH/2, SCRHEIGHT/2 - osc.xEP, (SCRWIDTH/2 + simState.A * cos(sqrt(simState.K / simState.m) * simState.t)), SCRHEIGHT/2 - osc.xEP, BLACK);
+        }
+        else if(cos(sqrt(simState.K / simState.m) * simState.t)<0){
+            DrawDottedLines(SCRWIDTH/2 + simState.A * cos(sqrt(simState.K / simState.m) * simState.t), SCRHEIGHT/2 - osc.xEP, SCRWIDTH/2, SCRHEIGHT/2 - osc.xEP, BLACK);
+        }
+        
+        char* variableValues;
+        asprintf(&variableValues, "xEP: %f m \nxNL: %f m\nu: %f m/s \na: %f m/s^2 \nTF: %f N\nKE: %f J\nUE: %f J \nTE: %f J", osc.xEP, osc.xNL, osc.u, osc.a, osc.TF, osc.KE, osc.UE, osc.TE);
+        DrawText(variableValues, 5, SCRHEIGHT - 18 * 8 * 3/2, 18, BLACK);
+        free(variableValues);
 
 
     EndDrawing();
@@ -88,8 +99,6 @@ physicsVals OscilatorSimulation(float A, float K, float m, char *surfaceType){
     float UE = 1/2 * K * xEP*xEP;
     float TE = 1/2 * K * A*A;
 
-
-    // float xEP, xNL, u, a, TF, KE, UE;
     return (physicsVals){xEP: xEP,xNL: xNL,u: u,a: a,TF: TF,KE: KE,UE: UE,TE: TE};
 }
 
@@ -102,7 +111,7 @@ void DrawDottedLines(int xi, int yi, int xf, int yf, Color color){
         float currentX = xi;
         float currentY = yi;
         float dx = 10; float dy = dx*L;
-        while (currentX + dx < abs(xf) && currentY + dy <= yf){
+        while (currentX + dx < xf && currentY + dy <= yf){
             DrawLineEx((Vector2){currentX, currentY}, (Vector2){currentX + dx, currentY + dy}, 5.0, color);
             currentX += dx * 2;
             currentY += dy * 2;
