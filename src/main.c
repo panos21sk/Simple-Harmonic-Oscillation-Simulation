@@ -24,7 +24,8 @@ physicsVals OscilatorSimulation(float A, float K, float m, char *surfaceType);
 void draw();
 
 
-state* simState = (state*){/*A*/300, /*K*/10, /*m*/ 3,/*t*/ 0, /*Paused*/ false, /*surfaceType*/ "V"}; //A edw = A(m) * 100, gia na fenetai
+state simStateSt = (state){A:300, K: 10, m: 3,t: 0, paused: false, surfaceType: "V"}; //A edw = A(m) * 100, gia na fenetai
+state* simState = &simStateSt;
 
 int main(void)
 {   // initialization
@@ -89,9 +90,11 @@ void draw(){
 
 
         //GUI
+        /*
         GuiSliderBar((Rectangle){}, "A:", NULL, &simState->A, 0, 400);
         GuiSliderBar((Rectangle){}, "K:", NULL, &simState->A, 0, 500);
         GuiSliderBar((Rectangle){}, "m:", NULL, &simState->A, 0, 500);
+        */
         
 
 
