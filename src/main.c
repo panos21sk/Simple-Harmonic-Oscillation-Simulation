@@ -3,6 +3,8 @@
 #include "stdlib.h"
 #include "stdio.h"
 #include "math.h"
+
+#define RAYGUI_IMPLEMENTATION
 #include "raygui.h"
 
 #define SCRWIDTH 1200
@@ -90,11 +92,9 @@ void draw(){
 
 
         //GUI
-        /*
-        GuiSliderBar((Rectangle){}, "A:", NULL, &simState->A, 0, 400);
-        GuiSliderBar((Rectangle){}, "K:", NULL, &simState->A, 0, 500);
-        GuiSliderBar((Rectangle){}, "m:", NULL, &simState->A, 0, 500);
-        */
+        GuiSliderBar((Rectangle){SCRWIDTH - 210, 10, 200, 40}, "A:", NULL, &simState->A, 0, 400);
+        GuiSliderBar((Rectangle){SCRWIDTH - 210, 60, 200, 40}, "K:", NULL, &simState->K, 0, 100);
+        GuiSliderBar((Rectangle){SCRWIDTH - 210, 110, 200, 40}, "m:", NULL, &simState->m, 0, 100);
         
 
 
