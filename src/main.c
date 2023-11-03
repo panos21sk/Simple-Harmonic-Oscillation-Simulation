@@ -7,6 +7,7 @@
 #define RAYGUI_IMPLEMENTATION
 #include "raygui.h"
 
+
 #define SCRWIDTH 1200
 #define SCRHEIGHT 800
 #define FPS 60
@@ -17,11 +18,11 @@ typedef struct{
 } physicsVals;
 typedef struct{
     float A, K, m, t;
-    bool paused;
+    bool paused, slowmo;
     char* surfaceType;
 }state;
 
-state simStateInit = (state){A:300, K: 10, m: 3,t: 0, paused: false, surfaceType: "V"}; //A edw = A(m) * 100, gia na fenetai
+state simStateInit = (state){A:300, K: 10, m: 3,t: 0, paused: false, slowmo: false, surfaceType: "V"}; //A edw = A(m) * 100, gia na fenetai
 state* simState = &simStateInit;
 
 //extra functions
@@ -52,7 +53,10 @@ void draw(){
     BeginDrawing();
 
         if(!simState->paused){
-            simState->t += GetFrameTime();
+            if(simState->slowmo){
+                simState->t += GetFrameTime() / 4;
+            }
+            else simState->t += GetFrameTime();
         }  
         //statics
         DrawRing((Vector2){SCRWIDTH/2, SCRHEIGHT/2}, simState->A, simState->A + 5, 0, 360, 1, RED);
@@ -71,8 +75,11 @@ void draw(){
         //dynamics
         DrawFPS(5, 0);
         physicsVals osc = OscilatorSimulation(simState->A, simState->K, simState->m, "V");
+        float x0 = SCRWIDTH/2 + simState->A * cos(sqrt(simState->K / simState->m) * simState->t);
+        float y0 = SCRHEIGHT/2 - osc.xEP;
         DrawCircle(SCRWIDTH/2, SCRHEIGHT/2 - osc.xEP, 10, BLACK); //oscillator
-        DrawLineEx((Vector2){SCRWIDTH/2, SCRHEIGHT/2}, (Vector2){SCRWIDTH/2 + simState->A * cos(sqrt(simState->K / simState->m) * simState->t), SCRHEIGHT/2 - osc.xEP}, 5.0, BLACK); //trig circle
+        DrawLineEx((Vector2){SCRWIDTH/2, SCRHEIGHT/2}, (Vector2){x0, y0}, 5.0, BLACK); //trig circle vector
+        
         if(cos(sqrt(simState->K / simState->m) * simState->t)>0){
             DrawDottedLines(SCRWIDTH/2, SCRHEIGHT/2 - osc.xEP, (SCRWIDTH/2 + simState->A * cos(sqrt(simState->K / simState->m) * simState->t)), SCRHEIGHT/2 - osc.xEP, BLACK);
         }
@@ -90,6 +97,7 @@ void draw(){
         GuiSliderBar((Rectangle){SCRWIDTH - 210, 60, 200, 40}, "K:", NULL, &simState->K, 0, 100);
         GuiSliderBar((Rectangle){SCRWIDTH - 210, 110, 200, 40}, "m:", NULL, &simState->m, 0, 100);
         GuiCheckBox((Rectangle){SCRWIDTH - 210, 160, 40, 40}, "Paused:", &simState->paused);
+        GuiCheckBox((Rectangle){SCRWIDTH - 210, 210, 40, 40}, "Slow-Motion", &simState->slowmo);
 
     EndDrawing();
 }
