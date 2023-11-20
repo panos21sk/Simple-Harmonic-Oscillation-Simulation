@@ -18,11 +18,13 @@ typedef struct{
 } physicsVals;
 typedef struct{
     float A, K, m, t;
+    float b;
     bool paused, slowmo;
+    bool damped_osc;
     char* surfaceType;
 }state;
 
-state simStateInit = (state){A:300, K: 10, m: 3,t: 0, paused: false, slowmo: false, surfaceType: "V"}; //A edw = A(m) * 100, gia na fenetai
+state simStateInit = (state){A:300, K: 10, m: 3,t: 0, paused: false, slowmo: false, damped_osc: false, surfaceType: "V"}; //A edw = A(m) * 100, gia na fenetai
 state* simState = &simStateInit;
 
 //extra functions
@@ -98,11 +100,20 @@ void draw(){
         GuiSliderBar((Rectangle){SCRWIDTH - 210, 110, 200, 40}, "m:", NULL, &simState->m, 0, 100);
         GuiCheckBox((Rectangle){SCRWIDTH - 210, 160, 40, 40}, "Paused:", &simState->paused);
         GuiCheckBox((Rectangle){SCRWIDTH - 210, 210, 40, 40}, "Slow-Motion", &simState->slowmo);
+        GuiCheckBox((Rectangle){SCRWIDTH - 210, 260, 40, 40}, "Damped Oscillation", &simState->damped_osc);
+        if(simState->damped_osc){
+            GuiSliderBar((Rectangle){SCRWIDTH - 210, 310, 200, 40}, "b:", NULL, &simState->b, 0, 1);
+        }
 
     EndDrawing();
 }
 
 physicsVals OscilatorSimulation(float A, float K, float m, char *surfaceType){
+    if(simState->damped_osc){
+        float lambda = simState->b / (2 * simState->m) / 100; //scaling lambda down because to display accurate pixel-meter ratio i divide A by 100
+        simState->A *= exp(-lambda * simState->t);
+    }
+
     float omega = sqrt(K/m);
     float d;
     if (surfaceType == "V"){
