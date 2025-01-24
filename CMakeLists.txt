@@ -26,6 +26,3 @@ add_executable(${PROJECT_NAME})
 target_sources(${PROJECT_NAME} PRIVATE ${PROJECT_SOURCES})
 target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_INCLUDE})
 target_link_libraries(${PROJECT_NAME} PRIVATE raylib)
-
-# Add inih headers and source file directly to the executable, since inih is a smaill single file lib
-target_include_directories(${PROJECT_NAME} PRIVATE ${inih_SOURCE_DIR})
